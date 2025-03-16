@@ -1,3 +1,4 @@
+'use client'
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   Breadcrumb,
@@ -14,7 +15,13 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
+import { useSession } from "next-auth/react";
+
 export default function Page() {
+  const { data: session, status } = useSession();
+  console.log('session?.user')
+  console.log(session?.user)
+
   return (
     <SidebarProvider>
       <AppSidebar />
