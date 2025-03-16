@@ -1,12 +1,15 @@
+"use client"; // Mark this as a Client Component
+
+import { Sidebar, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import './globals.css'
-import type { Metadata } from "next";
 import { SessionProvider } from 'next-auth/react';
+import { Montserrat, Oxanium } from 'next/font/google'
+import { usePathname } from 'next/navigation';
+import { AppSidebar } from '@/components/app-sidebar';
 
-import { Montserrat, Oxanium  } from 'next/font/google'
-
-export const metadata: Metadata = {
-  title: "Create Next App",
-};
+//export const metadata: Metadata = {
+//title: "Create Next App",
+//};
 
 const oxanium = Oxanium({
   weight: ['500', '600'],
@@ -25,13 +28,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+
   return (
     <html lang="en" className={`${oxanium.variable} ${montserrat.variable}`}>
       <body className='bg-white antialiased'>
         <SessionProvider>
-        {children}
+          {pathname === '/login'
+            ?
+            children
+            :
+            <SidebarProvider>
+              <AppSidebar />
+              <main>
+                <SidebarTrigger />
+                {children}
+              </main>
+            </SidebarProvider>
+          }
         </SessionProvider>
-        </body>
+      </body>
     </html>
   );
 }

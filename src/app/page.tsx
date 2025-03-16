@@ -1,6 +1,7 @@
 "use client"; // Transforma o componente em um Client Component
 
 import { Button } from "@/components/button";
+import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { ArrowRight } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react"; // Substitui o auth() do lado do servidor
@@ -32,6 +33,7 @@ export default function Home() {
     <>
       {session?.user?.email} {/* Exibe o email do usuário */}
       <button onClick={handleSignOut}>SAIR</button> {/* Botão de logout */}
+      
     </>
   );
 }
