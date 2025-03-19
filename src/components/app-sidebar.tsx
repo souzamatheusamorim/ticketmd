@@ -45,7 +45,7 @@ const data = {
         },
         {
           title: "Concursos",
-          url: "#",
+          url: "concursos",
         },
         {
           title: "Usuários",
