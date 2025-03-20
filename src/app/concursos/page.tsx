@@ -115,7 +115,7 @@ const productsData: Product[] = [
 
 export default function Concursos() {
   const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)  
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [cart, setCart] = useState<Product[]>([])
 
@@ -147,19 +147,19 @@ export default function Concursos() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <header className="mb-10">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Nossos Produtos</h1>
+      <header className="mb-10 w-full">
+        <div className="flex justify-between items-center mb-6 w-full">
+          <h1 className="text-3xl font-bold">Concursos Disponíveis</h1>
           <div className="flex items-center gap-2">
-            <span className="text-sm">Carrinho: {cart.length} itens</span>
+            <span className="text-sm">Gerenciando: {cart.length} concursos</span>
           </div>
         </div>
-        <p className="text-muted-foreground mb-6">
-          Explore nossa seleção de produtos premium com os melhores preços do mercado.
+        <p className="text-muted-foreground mb-6 w-full">
+          Explore os concursos disponíveis e gerencie suas inscrições.
         </p>
 
         {/* Filtros de categoria */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6 w-full">
           <Button variant={selectedCategory === null ? "default" : "outline"} onClick={() => setSelectedCategory(null)}>
             Todos
           </Button>
@@ -169,34 +169,44 @@ export default function Concursos() {
               variant={selectedCategory === category ? "default" : "outline"}
               onClick={() => setSelectedCategory(category)}
             >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {category === "federal"
+                ? "Federal"
+                : category === "estadual"
+                  ? "Estadual"
+                  : category === "municipal"
+                    ? "Municipal"
+                    : category.charAt(0).toUpperCase() + category.slice(1)}
             </Button>
           ))}
         </div>
       </header>
 
       {loading ? (
-        // Estado de carregamento
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        // Estado de carregamento com grid que permite até 4 colunas
+        <div className="grid w-full gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {[...Array(8)].map((_, index) => (
-            <ProductCardSkeleton key={index} />
+            <div key={index} className="w-full h-full">
+              <ProductCardSkeleton />
+            </div>
           ))}
         </div>
       ) : (
-        // Exibição dos produtos
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        // Exibição dos produtos com grid que permite até 4 colunas
+        <div className="grid w-full gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
+            <div key={product.id} className="w-full h-full">
+              <ProductCard product={product} onAddToCart={handleAddToCart} />
+            </div>
           ))}
         </div>
       )}
 
       {!loading && filteredProducts.length === 0 && (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-medium mb-2">Nenhum produto encontrado</h3>
-          <p className="text-muted-foreground">Não encontramos produtos na categoria selecionada.</p>
+        <div className="text-center py-12 w-full">
+          <h3 className="text-xl font-medium mb-2">Nenhum concurso encontrado</h3>
+          <p className="text-muted-foreground">Não encontramos concursos na categoria selecionada.</p>
           <Button variant="outline" className="mt-4" onClick={() => setSelectedCategory(null)}>
-            Ver todos os produtos
+            Ver todos os concursos
           </Button>
         </div>
       )}
