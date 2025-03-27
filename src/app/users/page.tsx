@@ -31,7 +31,7 @@ export default function Users() {
     }
 
     try {
-      const res = await fetch('https://dev.mundodream.com.br/clients', {
+      const res = await fetch('https://dev.mundodream.com.br/users', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${session.user.access_token}`,

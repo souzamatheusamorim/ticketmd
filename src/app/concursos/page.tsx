@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { ProductCard, type Product } from "@/components/product-card"
 import { ProductCardSkeleton } from "@/components/product-card-skeleton"
+import { useSession } from "next-auth/react"
 
 // Array simulando dados de uma API
 const productsData: Product[] = [
@@ -113,23 +114,71 @@ const productsData: Product[] = [
   },
 ]
 
+interface Concursos {
+  id: string
+  name: string
+  cpf: string
+  email: string
+  phone: string
+}
+
+interface ApiResponse {
+  data: {
+    [key: string]: Concursos
+  }
+}
+
 export default function Concursos() {
+  const { data: session } = useSession()
   const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)  
+  const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [cart, setCart] = useState<Product[]>([])
+  const [concursos, setConcursos] = useState<Concursos[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Simular carregamento de API
   useEffect(() => {
     const fetchProducts = async () => {
-      // Simulando um atraso de rede
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise(resolve => setTimeout(resolve, 1500))
       setProducts(productsData)
       setLoading(false)
     }
 
     fetchProducts()
   }, [])
+
+  // Função para buscar concursos
+  const fetchUsers = useCallback(async () => {
+    if (!session?.user?.access_token) return
+
+    try {
+      const res = await fetch('https://dev.mundodream.com.br/clients', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${session.user.access_token}`,
+        },
+      })
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`)
+      }
+
+      const data: ApiResponse = await res.json()
+      const usersArray = Object.values(data.data)
+      setConcursos(usersArray)
+    } catch (error) {
+      setError("Failed to fetch users")
+      console.error('Error fetching data:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [session])
+
+  useEffect(() => {
+    fetchUsers()
+  }, [fetchUsers])
 
   // Obter categorias únicas para filtros
   const categories = Array.from(new Set(productsData.map((product) => product.category)))
@@ -160,7 +209,10 @@ export default function Concursos() {
 
         {/* Filtros de categoria */}
         <div className="flex flex-wrap gap-2 mb-6 w-full">
-          <Button variant={selectedCategory === null ? "default" : "outline"} onClick={() => setSelectedCategory(null)}>
+          <Button 
+            variant={selectedCategory === null ? "default" : "outline"} 
+            onClick={() => setSelectedCategory(null)}
+          >
             Todos
           </Button>
           {categories.map((category) => (
@@ -204,8 +256,14 @@ export default function Concursos() {
       {!loading && filteredProducts.length === 0 && (
         <div className="text-center py-12 w-full">
           <h3 className="text-xl font-medium mb-2">Nenhum concurso encontrado</h3>
-          <p className="text-muted-foreground">Não encontramos concursos na categoria selecionada.</p>
-          <Button variant="outline" className="mt-4" onClick={() => setSelectedCategory(null)}>
+          <p className="text-muted-foreground">
+            Não encontramos concursos na categoria selecionada.
+          </p>
+          <Button 
+            variant="outline" 
+            className="mt-4" 
+            onClick={() => setSelectedCategory(null)}
+          >
             Ver todos os concursos
           </Button>
         </div>
@@ -213,4 +271,3 @@ export default function Concursos() {
     </div>
   )
 }
-
