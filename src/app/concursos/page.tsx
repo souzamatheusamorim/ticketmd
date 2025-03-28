@@ -7,6 +7,7 @@ import { ProductCardSkeleton } from "@/components/product-card-skeleton"
 import { useSession } from "next-auth/react"
 
 // Array simulando dados de uma API
+//name type 
 const productsData: Product[] = [
   {
     id: 1,
@@ -19,7 +20,7 @@ const productsData: Product[] = [
     brand: "Apple",
     category: "smartphones",
     thumbnail: "/placeholder.svg?height=200&width=300",
-    tags: ["premium", "apple", "smartphone"],
+    tags: ["k-pop", "apple", "smartphone"],
   },
   {
     id: 2,
@@ -120,6 +121,7 @@ interface Concursos {
   cpf: string
   email: string
   phone: string
+  type: string
 }
 
 interface ApiResponse {
@@ -154,7 +156,7 @@ export default function Concursos() {
     if (!session?.user?.access_token) return
 
     try {
-      const res = await fetch('https://dev.mundodream.com.br/clients', {
+      const res = await fetch('https://dev.mundodream.com.br/contests', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${session.user.access_token}`,
@@ -168,6 +170,7 @@ export default function Concursos() {
       const data: ApiResponse = await res.json()
       const usersArray = Object.values(data.data)
       setConcursos(usersArray)
+      console.log(usersArray)
     } catch (error) {
       setError("Failed to fetch users")
       console.error('Error fetching data:', error)
@@ -181,12 +184,12 @@ export default function Concursos() {
   }, [fetchUsers])
 
   // Obter categorias únicas para filtros
-  const categories = Array.from(new Set(productsData.map((product) => product.category)))
+  const categories = Array.from(new Set(concursos.map((concurso) => concurso.type)))
 
   // Filtrar produtos por categoria
   const filteredProducts = selectedCategory
-    ? products.filter((product) => product.category === selectedCategory)
-    : products
+    ? concursos.filter((concurso) => concurso.type === selectedCategory)
+    : concursos
 
   // Função para adicionar ao carrinho
   const handleAddToCart = (product: Product) => {
