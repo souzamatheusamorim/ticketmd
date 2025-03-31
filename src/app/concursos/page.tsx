@@ -84,17 +84,18 @@ export default function Concursos() {
     <div className="container mx-auto py-8 px-4">
       <header className="mb-10 w-full">
         <div className="flex justify-between items-center mb-6 w-full">
-          <h1 className="text-3xl font-bold">Concursos Disponíveis</h1>
+          <h1 className="text-3xl font-bold text-purple-999">Concursos Disponíveis</h1>
         </div>
         <p className="text-muted-foreground mb-6 w-full">
           Explore os concursos disponíveis e gerencie suas inscrições.
         </p>
 
         {/* Filtros de categoria */}
-        <div className="flex flex-wrap gap-2 mb-6 w-full">
+        <div className="flex flex-wrap gap-2 mb-6 w-full ">
           <Button 
             variant={selectedCategory === null ? "default" : "outline"} 
             onClick={() => setSelectedCategory(null)}
+            className="bg-purple-999"
           >
             Todos
           </Button>
@@ -152,6 +153,7 @@ export default function Concursos() {
             variant="outline" 
             className="mt-4" 
             onClick={() => setSelectedCategory(null)}
+            
           >
             Ver todos os concursos
           </Button>

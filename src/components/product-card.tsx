@@ -64,8 +64,9 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       <CardFooter className="px-6 pb-6 pt-0">
         <Button 
           variant="outline" 
-          className="w-full"
+          className="w-full bg-purple-999 text-gray-100"
           onClick={handleManageConcurso}
+        
         >
           Ver detalhes
         </Button>

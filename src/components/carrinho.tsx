@@ -53,15 +53,15 @@ export default function Carrinho({
             </span>
           </div>
           <div className="flex justify-center">
-            <Button
+            { isMinimized ? <Button
               variant="ghost"
               size="icon"
               className="hidden md:flex"
               onClick={onToggleMinimize}
               title={isMinimized ? "Expandir carrinho" : "Minimizar carrinho"}
             >
-              {isMinimized ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </Button>
+              {isMinimized ? <ChevronUp className="h-4 w-4" /> : ''}
+            </Button> : ''}
           </div>
           <div className="flex justify-end">
             <Button variant="ghost" size="icon" className="md:hidden" onClick={onClose}>
