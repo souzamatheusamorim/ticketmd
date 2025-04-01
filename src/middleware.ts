@@ -28,9 +28,8 @@ export async function middleware(request: NextRequest) {
     }
     
     // Para páginas
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname)
-    return NextResponse.redirect(loginUrl)
+   
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   // 5. Exemplo: Adicionar headers com os dados da sessão

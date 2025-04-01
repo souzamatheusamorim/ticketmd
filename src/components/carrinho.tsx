@@ -95,7 +95,7 @@ export default function Carrinho({
               </div>
 
               <div className="flex flex-col gap-2">
-                <Button className="w-full">Finalizar Compra</Button>
+                <Button className="w-full bg-purple-999">Finalizar Compra</Button>
 
                 {/* Botão centralizado para minimizar o carrinho */}
                 <div className="flex justify-center">

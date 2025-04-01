@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import TicketCard from "@/components/ticket-card"
 import Carrinho from "@/components/carrinho"
-
+import { cn } from "@/lib/utils"
 // Dados de exemplo para os eventos organizados por dia
 const eventsByDay = {
   segunda: [
@@ -86,21 +86,7 @@ export type CartItem = {
   day: string
 }
 
-// Cria um objeto com todos os IDs de eventos e quantidade 0
-const createInitialQuantities = () => {
-  const initial: { [key: number]: number } = {}
-  Object.values(eventsByDay).forEach((dayEvents) => {
-    dayEvents.forEach((event) => {
-      initial[event.id] = 0
-    })
-  })
-  return initial
-}
-
-export default function Ingressos() {
-  // Estado para controlar a quantidade de cada ingresso
-  const [quantities, setQuantities] = useState<{ [key: number]: number }>(createInitialQuantities())
-
+export default function TicketSalesPage() {
   // Estado para o carrinho de compras
   const [cart, setCart] = useState<CartItem[]>([])
 
@@ -113,36 +99,15 @@ export default function Ingressos() {
   // Estado para rastrear o dia selecionado
   const [selectedDay, setSelectedDay] = useState<string>("segunda")
 
-  // Função para incrementar a quantidade
-  const incrementQuantity = (eventId: number) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [eventId]: prev[eventId] + 1,
-    }))
-  }
-
-  // Função para decrementar a quantidade
-  const decrementQuantity = (eventId: number) => {
-    if (quantities[eventId] > 0) {
-      setQuantities((prev) => ({
-        ...prev,
-        [eventId]: prev[eventId] - 1,
-      }))
-    }
-  }
-
-  // Função para adicionar ao carrinho
+  // Função para adicionar um item ao carrinho
   const addToCart = (eventId: number, eventName: string, eventPrice: number) => {
-    const quantity = quantities[eventId]
-    if (quantity <= 0) return
-
     // Verifica se o item já está no carrinho
     const existingItemIndex = cart.findIndex((item) => item.id === eventId)
 
     if (existingItemIndex >= 0) {
       // Atualiza a quantidade se o item já estiver no carrinho
       const updatedCart = [...cart]
-      updatedCart[existingItemIndex].quantity += quantity
+      updatedCart[existingItemIndex].quantity += 1
       setCart(updatedCart)
     } else {
       // Adiciona novo item ao carrinho
@@ -152,28 +117,48 @@ export default function Ingressos() {
           id: eventId,
           name: eventName,
           price: eventPrice,
-          quantity,
+          quantity: 1,
           day: dayLabels[selectedDay],
         },
       ])
     }
 
-    // Reseta a quantidade após adicionar ao carrinho
-    setQuantities((prev) => ({
-      ...prev,
-      [eventId]: 0,
-    }))
-
-    // Mostra o carrinho em dispositivos móveis quando um item é adicionado
+    // Mostra o carrinho em dispositivos móveis quando um novo item é adicionado
     setIsCartVisible(true)
 
-    // Expande o carrinho quando um item é adicionado
+    // Expande o carrinho quando um novo item é adicionado
     setIsCartMinimized(false)
   }
 
-  // Função para remover item do carrinho
-  const removeFromCart = (itemId: number) => {
+  // Função para remover um item do carrinho
+  const removeFromCart = (eventId: number) => {
+    // Encontra o item no carrinho
+    const existingItemIndex = cart.findIndex((item) => item.id === eventId)
+
+    if (existingItemIndex >= 0) {
+      const updatedCart = [...cart]
+      const currentItem = updatedCart[existingItemIndex]
+
+      if (currentItem.quantity > 1) {
+        // Diminui a quantidade se houver mais de um
+        currentItem.quantity -= 1
+        setCart(updatedCart)
+      } else {
+        // Remove o item completamente se só houver um
+        setCart(cart.filter((item) => item.id !== eventId))
+      }
+    }
+  }
+
+  // Função para remover completamente um item do carrinho
+  const removeItemCompletely = (itemId: number) => {
     setCart(cart.filter((item) => item.id !== itemId))
+  }
+
+  // Obtém a quantidade de um item específico no carrinho
+  const getItemQuantity = (eventId: number): number => {
+    const item = cart.find((item) => item.id === eventId)
+    return item ? item.quantity : 0
   }
 
   // Total de itens no carrinho
@@ -204,9 +189,10 @@ export default function Ingressos() {
 
       <main className="container mx-auto px-4 py-6">
         <Tabs defaultValue="segunda" className="w-full" onValueChange={(value) => setSelectedDay(value)}>
-          <TabsList className="mb-6 w-full h-auto flex flex-wrap justify-start overflow-x-auto">
+          <TabsList className="mb-6 w-full h-auto flex flex-wrap justify-start overflow-x-auto bg-purple-999">
             {Object.entries(dayLabels).map(([day, label]) => (
-              <TabsTrigger key={day} value={day} className="flex-shrink-0">
+              <TabsTrigger key={day} value={day}  className={("flex-shrink-0 data-[state=active]:text-red-600 data-[state=active]:font-bold")}
+              >
                 {label}
               </TabsTrigger>
             ))}
@@ -214,15 +200,14 @@ export default function Ingressos() {
 
           {Object.entries(eventsByDay).map(([day, events]) => (
             <TabsContent key={day} value={day}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 {events.map((event) => (
                   <TicketCard
                     key={event.id}
                     event={event}
-                    quantity={quantities[event.id]}
-                    onIncrement={() => incrementQuantity(event.id)}
-                    onDecrement={() => decrementQuantity(event.id)}
-                    onAddToCart={() => addToCart(event.id, event.name, event.price)}
+                    quantity={getItemQuantity(event.id)}
+                    onIncrement={() => addToCart(event.id, event.name, event.price)}
+                    onDecrement={() => removeFromCart(event.id)}
                   />
                 ))}
               </div>
@@ -237,7 +222,7 @@ export default function Ingressos() {
         isMinimized={isCartMinimized}
         onClose={() => setIsCartVisible(false)}
         onToggleMinimize={() => setIsCartMinimized(!isCartMinimized)}
-        onRemoveItem={removeFromCart}
+        onRemoveItem={removeItemCompletely}
       />
     </div>
   )

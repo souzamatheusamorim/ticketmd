@@ -34,7 +34,7 @@ export default function RootLayout({
     <html lang="en" className={`${oxanium.variable} ${montserrat.variable}`}>
       <body className='bg-white antialiased'>
         <SessionProvider>
-          {pathname === '/login'
+          {pathname === '/login'|| '/ingressos'
             ?
             children
             :
