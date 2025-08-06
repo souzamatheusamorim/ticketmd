@@ -40,8 +40,8 @@ export default function Login() {
       <div className="w-[30%] flex items-center justify-center bg-background p-8">
         <div className="w-full max-w-sm space-y-6">
           <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-bold">Welcome back</h1>
-            <p className="text-sm text-gray-500">Enter your credentials to access your account</p>
+            <h1 className="text-2xl font-bold">Bem-Vindo</h1>
+            <p className="text-sm text-gray-500">Utilize seu email para acessar sua conta.</p>
           </div>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
@@ -65,10 +65,10 @@ export default function Login() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
+                  Senha
                 </label>
                 <Link href="/forgot-password" className="text-sm text-gray-500 hover:text-gray-700 hover:underline">
-                  Forgot password?
+                  Esqueceu sua senha?
                 </Link>
               </div>
               <div className="relative">
@@ -87,11 +87,13 @@ export default function Login() {
             <div className="flex justify-center items-center">
               <button
                 type="submit"
-                className="bg-purple w-[100px] h-[100px] rounded-lg bg-black px-3 text-sm font-semibold text-white shadow-sm hover:bg-black/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                style={{ backgroundColor: '#9333ea' }}
+                className="w-[100px] h-[100px] rounded-lg px-3 text-sm font-semibold text-white shadow-sm hover:bg-purple-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
               >
                 <div className="flex">
-                <div className="color-white-100">Sign in</div>
-                <ChevronRight size={24} className="text-blue-500" />
+                  
+                <div style={{ color: 'white' }} className="text-white">Entrar</div>
+                <ChevronRight style={{ color: 'white' }} size={24} className="text-blue-500" />
                 </div>
               </button>
              
@@ -99,9 +101,9 @@ export default function Login() {
 
           </form>
           <div className="text-center text-sm text-gray-500">
-            Don&apos;t have an account?{" "}
+           Ainda não tem uma conta?{" "}
             <Link href="/register" className="font-semibold text-black hover:underline">
-              Sign up
+              Crie uma agora mesmo
             </Link>
           </div>
         </div>

@@ -2,6 +2,7 @@
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import UsersDataTable from "./_components/users-datatable";
+import { AuthGuard } from "@/components/auth-guard";
 
 interface User {
   id: string;
@@ -67,8 +68,10 @@ export default function Users() {
   }
 
   return (
-    <div className="p-10 pt-20">
-     
-    </div>
+    <AuthGuard>
+      <div className="p-10 pt-20">
+       
+      </div>
+    </AuthGuard>
   );
 }

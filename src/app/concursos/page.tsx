@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product-card"
 import { ProductCardSkeleton } from "@/components/product-card-skeleton"
 import { useSession } from "next-auth/react"
+import { AuthGuard } from "@/components/auth-guard"
 
 interface Concursos {
   id: string
@@ -81,84 +82,86 @@ export default function Concursos() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <header className="mb-10 w-full">
-        <div className="flex justify-between items-center mb-6 w-full">
-          <h1 className="text-3xl font-bold text-purple-999">Concursos Disponíveis</h1>
-        </div>
-        <p className="text-muted-foreground mb-6 w-full">
-          Explore os concursos disponíveis e gerencie suas inscrições.
-        </p>
-
-        {/* Filtros de categoria */}
-        <div className="flex flex-wrap gap-2 mb-6 w-full ">
-          <Button 
-            variant={selectedCategory === null ? "default" : "outline"} 
-            onClick={() => setSelectedCategory(null)}
-            className="bg-purple-999"
-          >
-            Todos
-          </Button>
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category === "federal"
-                ? "Federal"
-                : category === "estadual"
-                  ? "Estadual"
-                  : category === "municipal"
-                    ? "Municipal"
-                    : category.charAt(0).toUpperCase() + category.slice(1)}
-            </Button>
-          ))}
-        </div>
-      </header>
-
-      {isLoading ? (
-        <div className="grid w-full gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {[...Array(8)].map((_, index) => (
-            <div key={index} className="w-full h-full">
-              <ProductCardSkeleton />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid w-full gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredConcursos.map((concurso) => (
-            <div key={concurso.id} className="w-full h-full">
-              <ProductCard 
-                product={{
-                  id: concurso.id,
-                  title: concurso.name,
-                  // Adicionando propriedades extras que podem ser usadas no card
-                  description: concurso.description || "Concurso disponível para inscrição",
-                  date: concurso.date
-                }} 
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {!isLoading && filteredConcursos.length === 0 && (
-        <div className="text-center py-12 w-full">
-          <h3 className="text-xl font-medium mb-2">Nenhum concurso encontrado</h3>
-          <p className="text-muted-foreground">
-            Não encontramos concursos na categoria selecionada.
+    <AuthGuard>
+      <div className="container mx-auto py-8 px-4">
+        <header className="mb-10 w-full">
+          <div className="flex justify-between items-center mb-6 w-full">
+            <h1 className="text-3xl font-bold text-purple-999">Concursos Disponíveis</h1>
+          </div>
+          <p className="text-muted-foreground mb-6 w-full">
+            Explore os concursos disponíveis e gerencie suas inscrições.
           </p>
-          <Button 
-            variant="outline" 
-            className="mt-4" 
-            onClick={() => setSelectedCategory(null)}
-            
-          >
-            Ver todos os concursos
-          </Button>
-        </div>
-      )}
-    </div>
+
+          {/* Filtros de categoria */}
+          <div className="flex flex-wrap gap-2 mb-6 w-full ">
+            <Button 
+              variant={selectedCategory === null ? "default" : "outline"} 
+              onClick={() => setSelectedCategory(null)}
+              className="bg-purple-999"
+            >
+              Todos
+            </Button>
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category === "federal"
+                  ? "Federal"
+                  : category === "estadual"
+                    ? "Estadual"
+                    : category === "municipal"
+                      ? "Municipal"
+                      : category.charAt(0).toUpperCase() + category.slice(1)}
+              </Button>
+            ))}
+          </div>
+        </header>
+
+        {isLoading ? (
+          <div className="grid w-full gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="w-full h-full">
+                <ProductCardSkeleton />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid w-full gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredConcursos.map((concurso) => (
+              <div key={concurso.id} className="w-full h-full">
+                <ProductCard 
+                  product={{
+                    id: concurso.id,
+                    title: concurso.name,
+                    // Adicionando propriedades extras que podem ser usadas no card
+                    description: concurso.description || "Concurso disponível para inscrição",
+                    date: concurso.date
+                  }} 
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!isLoading && filteredConcursos.length === 0 && (
+          <div className="text-center py-12 w-full">
+            <h3 className="text-xl font-medium mb-2">Nenhum concurso encontrado</h3>
+            <p className="text-muted-foreground">
+              Não encontramos concursos na categoria selecionada.
+            </p>
+            <Button 
+              variant="outline" 
+              className="mt-4" 
+              onClick={() => setSelectedCategory(null)}
+              
+            >
+              Ver todos os concursos
+            </Button>
+          </div>
+        )}
+      </div>
+    </AuthGuard>
   )
 }

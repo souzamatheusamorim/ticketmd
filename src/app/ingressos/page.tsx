@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import TicketCard from "@/components/ticket-card"
 import Carrinho from "@/components/carrinho"
-import { cn } from "@/lib/utils"
+
 // Dados de exemplo para os eventos organizados por dia
 const eventsByDay = {
   segunda: [
@@ -165,7 +165,7 @@ export default function TicketSalesPage() {
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0)
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-32">
+    <div style={{ backgroundColor: "var(--color-gray-100)" }} className="min-h-screen pb-24 md:pb-32">
       <header className="sticky top-0 z-10 bg-background border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -189,7 +189,7 @@ export default function TicketSalesPage() {
 
       <main className="container mx-auto px-4 py-6">
         <Tabs defaultValue="segunda" className="w-full" onValueChange={(value) => setSelectedDay(value)}>
-          <TabsList className="mb-6 w-full h-auto flex flex-wrap justify-start overflow-x-auto bg-purple-999">
+          <TabsList className="mb-6 w-full h-auto flex flex-wrap justify-start overflow-x-auto --color-gray-200">
             {Object.entries(dayLabels).map(([day, label]) => (
               <TabsTrigger key={day} value={day}  className={("flex-shrink-0 data-[state=active]:text-red-600 data-[state=active]:font-bold")}
               >

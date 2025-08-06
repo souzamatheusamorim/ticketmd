@@ -1,34 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TicketMD - Sistema de Gerenciamento de Ingressos
 
-## Getting Started
+## Autenticação Forçada
 
-First, run the development server:
+Este projeto agora implementa **autenticação forçada** em todas as rotas protegidas. Os usuários devem fazer login para acessar qualquer funcionalidade do sistema.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Configurações de Autenticação
+
+- **Rotas Públicas**: `/login`, `/register`, `/ingressos`, `/api/auth`
+- **Rotas Protegidas**: `/dashboard`, `/concursos`, `/users`, `/checkout`, `/cadastro-cosplay`
+- **Redirecionamento após Login**: `/dashboard`
+- **Redirecionamento após Logout**: `/login`
+
+### Componentes de Autenticação
+
+#### AuthGuard
+Componente que força a autenticação em páginas específicas:
+
+```tsx
+import { AuthGuard } from "@/components/auth-guard";
+
+export default function ProtectedPage() {
+  return (
+    <AuthGuard>
+      <div>Conteúdo protegido</div>
+    </AuthGuard>
+  );
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### LogoutButton
+Componente para logout do usuário:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```tsx
+import { LogoutButton } from "@/components/logout-button";
 
-## Learn More
+<LogoutButton variant="outline" size="sm" />
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Middleware de Autenticação
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+O middleware (`src/middleware.ts`) verifica automaticamente a autenticação em todas as rotas e redireciona usuários não autenticados para a página de login.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Configurações Centralizadas
 
-## Deploy on Vercel
+As configurações de autenticação estão centralizadas em `src/lib/auth-config.ts`:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```typescript
+export const AUTH_CONFIG = {
+  PUBLIC_ROUTES: ['/login', '/register', '/ingressos'],
+  PROTECTED_ROUTES: ['/dashboard', '/concursos', '/users'],
+  LOGIN_REDIRECT_URL: '/dashboard',
+  LOGOUT_REDIRECT_URL: '/login',
+  // ...
+};
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Como Usar
+
+1. **Login**: Acesse `/login` e insira suas credenciais
+2. **Navegação**: Após o login, você será redirecionado para `/dashboard`
+3. **Logout**: Use o botão "Sair" no sidebar para fazer logout
+4. **Proteção**: Todas as rotas protegidas verificam automaticamente a autenticação
+
+### Estrutura de Arquivos
+
+```
+src/
+├── components/
+│   ├── auth-guard.tsx          # Componente de proteção de rota
+│   ├── logout-button.tsx       # Botão de logout
+│   └── app-sidebar.tsx         # Sidebar com informações do usuário
+├── lib/
+│   ├── auth.ts                 # Configuração do NextAuth
+│   └── auth-config.ts          # Configurações centralizadas
+├── hooks/
+│   └── use-auth.ts             # Hook personalizado para autenticação
+└── middleware.ts               # Middleware de proteção de rotas
+```
+
+### Tecnologias Utilizadas
+
+- **NextAuth.js**: Autenticação e gerenciamento de sessão
+- **Next.js 14**: Framework React com App Router
+- **TypeScript**: Tipagem estática
+- **Tailwind CSS**: Estilização
+
+### Desenvolvimento
+
+```bash
+# Instalar dependências
+npm install
+
+# Executar em desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+```
+
+### Variáveis de Ambiente
+
+Certifique-se de configurar as seguintes variáveis de ambiente:
+
+```env
+NEXTAUTH_SECRET=your-secret-key
+NEXTAUTH_URL=http://localhost:3000
+```
