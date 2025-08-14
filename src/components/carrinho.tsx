@@ -1,8 +1,8 @@
-"use client"
-
+"use client";
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, X, ChevronUp, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation";
 
 interface CartItem {
   id: number
@@ -30,6 +30,7 @@ export default function Carrinho({
   onToggleMinimize,
   onRemoveItem,
 }: ShoppingCartProps) {
+  const router = useRouter();
   // Calcula o total do carrinho
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
 
@@ -95,9 +96,9 @@ export default function Carrinho({
               </div>
 
               <div className="flex flex-col gap-2">
-                <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-md">Finalizar Compra</Button>
+                <Button className="w-full bg-[#41056F] hover:bg-[#51067F] shadow-md transition-colors duration-200" onClick={() => router.push("/checkout")}>Finalizar Compra</Button>
 
-                {/* Botão centralizado para minimizar o carrinho */}
+                {/* Botão centralizado para minimizar o carrinho 
                 <div className="flex justify-center">
                   <Button
                     variant="ghost"
@@ -109,6 +110,7 @@ export default function Carrinho({
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </div>
+*/}
               </div>
             </>
           )}
@@ -121,7 +123,7 @@ export default function Carrinho({
           <Button
             variant="secondary"
             size="sm"
-            className="rounded-full shadow-md px-3 py-1 h-8 bg-white/90 backdrop-blur-sm border border-pink-200 text-pink-600 hover:bg-pink-100"
+            className="rounded-full shadow-md px-3 py-1 h-8 bg-[#ffff] backdrop-blur-sm border border-pink-200 text-pink-600 hover:bg-pink-100"
             onClick={onToggleMinimize}
           >
             <ChevronDown className="h-4 w-4 mr-1" />

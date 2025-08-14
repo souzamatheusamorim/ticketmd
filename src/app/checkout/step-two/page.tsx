@@ -9,12 +9,35 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+// Email de teste para simular base de dados
+const TEST_EMAIL = "usuario@teste.com"
+
+const INSTALLMENT_OPTIONS = [
+  { installments: 1, interestRate: 0, totalAmount: 299.9 },
+  { installments: 2, interestRate: 0, totalAmount: 299.9 },
+  { installments: 3, interestRate: 0, totalAmount: 299.9 },
+  { installments: 4, interestRate: 2.5, totalAmount: 307.48 },
+  { installments: 5, interestRate: 3.2, totalAmount: 309.49 },
+  { installments: 6, interestRate: 4.1, totalAmount: 312.29 },
+  { installments: 7, interestRate: 5.0, totalAmount: 314.9 },
+  { installments: 8, interestRate: 5.8, totalAmount: 317.29 },
+  { installments: 9, interestRate: 6.5, totalAmount: 319.39 },
+  { installments: 10, interestRate: 7.2, totalAmount: 321.49 },
+  { installments: 11, interestRate: 7.8, totalAmount: 323.29 },
+  { installments: 12, interestRate: 8.5, totalAmount: 325.49 },
+]
 
 export default function CheckoutStepTwo() {
   const router = useRouter()
   const [deliveryMethod, setDeliveryMethod] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("")
   const [isLoading, setIsLoading] = useState(true)
+  const [email, setEmail] = useState("")
+  const [isEmailInDatabase, setIsEmailInDatabase] = useState(false)
+  const [showUserFields, setShowUserFields] = useState(false)
+  const [selectedInstallments, setSelectedInstallments] = useState<number>(1)
 
   useEffect(() => {
     // Get selections from localStorage
@@ -31,6 +54,34 @@ export default function CheckoutStepTwo() {
     setPaymentMethod(storedPaymentMethod)
     setIsLoading(false)
   }, [router])
+
+  const handleEmailCheck = (emailValue: string) => {
+    setEmail(emailValue)
+  }
+
+  const handleEmailBlur = () => {
+    if (email.length > 0) {
+      // Simula verificação na base de dados
+      const emailExists = email === TEST_EMAIL
+      setIsEmailInDatabase(emailExists)
+      setShowUserFields(!emailExists)
+    } else {
+      setIsEmailInDatabase(false)
+      setShowUserFields(false)
+    }
+  }
+
+  const getInstallmentInfo = (installments: number) => {
+    const option = INSTALLMENT_OPTIONS.find((opt) => opt.installments === installments)
+    if (!option) return { installmentValue: 0, totalAmount: 0, interestRate: 0 }
+
+    const installmentValue = option.totalAmount / installments
+    return {
+      installmentValue,
+      totalAmount: option.totalAmount,
+      interestRate: option.interestRate,
+    }
+  }
 
   const handleBack = () => {
     router.push("/checkout")
@@ -69,95 +120,91 @@ export default function CheckoutStepTwo() {
 
       <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-3">
         <div className="md:col-span-2 space-y-6">
-          {/* Delivery Information */}
-          {deliveryMethod === "physical" ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-primary">Endereço de Entrega</CardTitle>
-                <CardDescription>Informe onde deseja receber seu produto</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nome Completo</Label>
-                    <Input id="name" placeholder="Seu nome completo" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone</Label>
-                    <Input id="phone" placeholder="(00) 00000-0000" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cep">CEP</Label>
-                    <Input id="cep" placeholder="00000-000" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="number">Número</Label>
-                    <Input id="number" placeholder="123" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address">Endereço</Label>
-                  <Input id="address" placeholder="Rua, Avenida, etc." />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="complement">Complemento</Label>
-                    <Input id="complement" placeholder="Apto, Bloco, etc." />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="neighborhood">Bairro</Label>
-                    <Input id="neighborhood" placeholder="Seu bairro" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Cidade/UF</Label>
-                    <Input id="city" placeholder="Cidade/UF" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-primary">Informações para Download</CardTitle>
-                <CardDescription>Informe seus dados para receber o link de download</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="digital-name">Nome Completo</Label>
-                    <Input id="digital-name" placeholder="Seu nome completo" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="digital-phone">Telefone</Label>
-                    <Input id="digital-phone" placeholder="(00) 00000-0000" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="seu@email.com" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-email">Confirmar Email</Label>
-                  <Input id="confirm-email" type="email" placeholder="seu@email.com" />
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Payment Information */}
           {paymentMethod === "card" ? (
             <Card>
               <CardHeader>
                 <CardTitle className="text-primary">Pagamento com Cartão</CardTitle>
-                <CardDescription>Informe os dados do seu cartão</CardDescription>
+                <CardDescription>
+                  {isEmailInDatabase
+                    ? "Usuário já cadastrado - dados carregados automaticamente"
+                    : "Informe seus dados para pagamento"}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={email}
+                    onChange={(e) => handleEmailCheck(e.target.value)}
+                    onBlur={handleEmailBlur}
+                  />
+                  {email === TEST_EMAIL && isEmailInDatabase && (
+                    <p className="text-sm text-green-600">✓ Email encontrado na base de dados</p>
+                  )}
+                </div>
+
+                {showUserFields && (
+                  <div className="space-y-4 border-t pt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="card-name-full">Nome Completo</Label>
+                      <Input id="card-name-full" placeholder="Seu nome completo" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="card-cpf">CPF</Label>
+                      <Input id="card-cpf" placeholder="000.000.000-00" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="card-whatsapp">WhatsApp</Label>
+                      <Input id="card-whatsapp" placeholder="(00) 00000-0000" />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-4 border-t pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="installments">Parcelas</Label>
+                    <Select
+                      value={selectedInstallments.toString()}
+                      onValueChange={(value) => setSelectedInstallments(Number(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o número de parcelas" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INSTALLMENT_OPTIONS.map((option) => {
+                          const installmentValue = option.totalAmount / option.installments
+                          return (
+                            <SelectItem key={option.installments} value={option.installments.toString()}>
+                              {option.installments}x de R$ {installmentValue.toFixed(2).replace(".", ",")}
+                              {option.interestRate > 0 && (
+                                <span className="text-muted-foreground ml-1">
+                                  (Total: R$ {option.totalAmount.toFixed(2).replace(".", ",")})
+                                </span>
+                              )}
+                              {option.interestRate === 0 && option.installments <= 3 && (
+                                <span className="text-green-600 ml-1 font-medium">sem juros</span>
+                              )}
+                            </SelectItem>
+                          )
+                        })}
+                      </SelectContent>
+                    </Select>
+                    {selectedInstallments > 3 && (
+                      <p className="text-sm text-muted-foreground">
+                        Juros de{" "}
+                        {INSTALLMENT_OPTIONS.find((opt) => opt.installments === selectedInstallments)?.interestRate}%
+                        aplicados
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Dados do cartão sempre visíveis */}
+                <div className="space-y-4 border-t pt-4">
                   <div className="space-y-2">
                     <Label htmlFor="card-number">Número do Cartão</Label>
                     <Input id="card-number" placeholder="0000 0000 0000 0000" />
@@ -185,22 +232,63 @@ export default function CheckoutStepTwo() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-primary">Pagamento com PIX</CardTitle>
-                <CardDescription>Escaneie o QR Code ou copie o código PIX</CardDescription>
+                <CardDescription>
+                  {isEmailInDatabase
+                    ? "Usuário já cadastrado - dados carregados automaticamente"
+                    : "Informe seus dados para pagamento PIX"}
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 flex flex-col items-center">
-                <div className="w-36 h-36 md:w-48 md:h-48 bg-muted flex items-center justify-center border">
-                  <QrCode className="w-20 h-20 md:w-24 md:h-24 text-primary" />
+              <CardContent className="space-y-4">
+                {/* Campo de email sempre visível */}
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={email}
+                    onChange={(e) => handleEmailCheck(e.target.value)}
+                    onBlur={handleEmailBlur}
+                  />
+                  {email === TEST_EMAIL && isEmailInDatabase && (
+                    <p className="text-sm text-green-600">✓ Email encontrado na base de dados</p>
+                  )}
                 </div>
-                <div className="text-center w-full">
-                  <p className="text-xs md:text-sm text-muted-foreground mb-2">Código PIX</p>
-                  <div className="flex flex-col sm:flex-row items-center gap-2 bg-muted p-2 rounded-md">
-                    <code className="text-xs overflow-x-auto w-full whitespace-nowrap">
-                      00020126580014br.gov.bcb.pix0136a629534e-7693-46c6-8143-713c8b7a7a175204000053039865802BR5925Nome
-                      da Empresa Fantasia6009SAO PAULO61080540900062250521RP12345678-201980720014br.gov.bcb.pix2001
-                    </code>
-                    <Button variant="outline" size="sm" className="mt-2 sm:mt-0 whitespace-nowrap">
-                      Copiar
-                    </Button>
+
+                {/* Campos adicionais apenas se email não estiver na base */}
+                {showUserFields && (
+                  <div className="space-y-4 border-t pt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="pix-name">Nome Completo</Label>
+                      <Input id="pix-name" placeholder="Seu nome completo" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="cpf">CPF</Label>
+                      <Input id="cpf" placeholder="000.000.000-00" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="whatsapp">WhatsApp</Label>
+                      <Input id="whatsapp" placeholder="(00) 00000-0000" />
+                    </div>
+                  </div>
+                )}
+
+                {/* QR Code PIX */}
+                <div className="flex flex-col items-center pt-4 border-t">
+                  <div className="w-36 h-36 md:w-48 md:h-48 bg-muted flex items-center justify-center border">
+                    <QrCode className="w-20 h-20 md:w-24 md:h-24 text-primary" />
+                  </div>
+                  <div className="text-center w-full mt-4">
+                    <p className="text-xs md:text-sm text-muted-foreground mb-2">Código PIX</p>
+                    <div className="flex flex-col sm:flex-row items-center gap-2 bg-muted p-2 rounded-md">
+                      <code className="text-xs overflow-x-auto w-full whitespace-nowrap">
+                        00020126580014br.gov.bcb.pix0136a629534e-7693-46c6-8143-713c8b7a7a175204000053039865802BR5925Nome
+                        da Empresa Fantasia6009SAO PAULO61080540900062250521RP12345678-201980720014br.gov.bcb.pix2001
+                      </code>
+                      <Button variant="outline" size="sm" className="mt-2 sm:mt-0 whitespace-nowrap bg-transparent">
+                        Copiar
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -253,6 +341,19 @@ export default function CheckoutStepTwo() {
                 </>
               )}
 
+              {paymentMethod === "card" && selectedInstallments > 1 && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <p className="text-muted-foreground">Parcelamento</p>
+                    <p className="font-medium">
+                      {selectedInstallments}x de R${" "}
+                      {getInstallmentInfo(selectedInstallments).installmentValue.toFixed(2).replace(".", ",")}
+                    </p>
+                  </div>
+                  <Separator />
+                </>
+              )}
+
               <div className="flex items-center justify-between">
                 <p className="font-medium">Total</p>
                 <p className="font-bold text-lg text-primary">
@@ -260,9 +361,11 @@ export default function CheckoutStepTwo() {
                     ? deliveryMethod === "physical"
                       ? "R$ 292,41"
                       : "R$ 269,91"
-                    : deliveryMethod === "physical"
-                      ? "R$ 324,90"
-                      : "R$ 299,90"}
+                    : paymentMethod === "card"
+                      ? `R$ ${getInstallmentInfo(selectedInstallments).totalAmount.toFixed(2).replace(".", ",")}`
+                      : deliveryMethod === "physical"
+                        ? "R$ 324,90"
+                        : "R$ 299,90"}
                 </p>
               </div>
             </CardContent>
@@ -280,7 +383,7 @@ export default function CheckoutStepTwo() {
                   </>
                 )}
               </Button>
-              <Button variant="outline" onClick={handleBack} className="w-full">
+              <Button variant="outline" onClick={handleBack} className="w-full bg-transparent">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voltar
               </Button>
@@ -291,4 +394,3 @@ export default function CheckoutStepTwo() {
     </div>
   )
 }
-

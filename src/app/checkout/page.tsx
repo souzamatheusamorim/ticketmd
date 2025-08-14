@@ -16,9 +16,17 @@ export default function CheckoutPage() {
 
   const handleContinue = () => {
     // Store selections in localStorage to access them in the next page
-    localStorage.setItem("deliveryMethod", deliveryMethod)
-    localStorage.setItem("paymentMethod", paymentMethod)
-    router.push("/checkout/step-two")
+   
+  localStorage.setItem("deliveryMethod", deliveryMethod)
+  localStorage.setItem("paymentMethod", paymentMethod)
+
+  if (paymentMethod === "pix") {
+      router.push("/checkout/step-two")
+  } else if (paymentMethod === "card") {
+      router.push("/checkout/step-two")
+  }
+
+  
   }
 
   return (
@@ -113,7 +121,7 @@ export default function CheckoutPage() {
                 >
                   <CreditCard className="mb-2 md:mb-3 h-5 w-5 md:h-6 md:w-6 text-primary" />
                   <p className="font-medium text-sm md:text-base">Cartão de Crédito</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">Pague em até 12x</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Pague em até 5x</p>
                 </Label>
               </div>
               <div>
@@ -130,7 +138,7 @@ export default function CheckoutPage() {
             </RadioGroup>
           </CardContent>
           <CardFooter>
-            <Button onClick={handleContinue} className="w-full">
+            <Button onClick={handleContinue} className="w-full bg-[#41056F]">
               Continuar
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
