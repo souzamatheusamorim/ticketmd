@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Plus, Target } from "lucide-react"
 import type { Meta, NovaMetaForm, MetasEstatisticas } from "@/types/meta"
 import { EstatisticasCard } from "@/components/estatisticas-card"
-import { MetaCard } from "@/components/meta-card"
+
 import { ModalNovaMeta } from "@/components/modal-nova-meta"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { EmptyState } from "@/components/empty-state"
