@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product-card"
 import { ProductCardSkeleton } from "@/components/product-card-skeleton"
 import { useSession } from "next-auth/react"
-import { AuthGuard } from "@/components/auth-guard"
+
 
 interface Concursos {
   id: string
@@ -82,7 +82,7 @@ export default function Concursos() {
   }
 
   return (
-    <AuthGuard>
+   // <AuthGuard>
       <div className="container mx-auto py-8 px-4">
         <header className="mb-10 w-full">
           <div className="flex justify-between items-center mb-6 w-full">
@@ -162,6 +162,6 @@ export default function Concursos() {
           </div>
         )}
       </div>
-    </AuthGuard>
+  //  </AuthGuard>
   )
 }
