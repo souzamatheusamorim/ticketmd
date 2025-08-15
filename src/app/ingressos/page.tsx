@@ -340,10 +340,14 @@ useEffect(() => {
         setSelectedDay(Object.keys(grouped)[0]);
       }
 
-    } catch (err) {
-      console.error("❌ Erro ao buscar ingressos:", err);
-      setError(err.message || "Erro ao carregar dados");
-    } finally {
+   } catch (err) {
+  console.error("❌ Erro ao buscar ingressos:", err);
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError(String(err));
+  }
+}finally {
       setIsLoading(false);
     }
   };
