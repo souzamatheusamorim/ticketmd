@@ -287,7 +287,7 @@ useEffect(() => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch("https://mundo-app-api.vercel.app/api/v1/status", {
+      const response = await fetch("https://mundo-app-api.vercel.app/api/v1/events/festival-de-musica-2025/tickets?companyId=a0000000-0000-0000-0000-000000000001&isActive=true", {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
