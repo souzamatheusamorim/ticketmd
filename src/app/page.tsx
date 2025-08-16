@@ -17,7 +17,7 @@ export default function Home() {
 
   // Se a sessão ainda estiver carregando, exibe uma mensagem de carregamento
   if (status === "loading") {
-    return <p>Carregando...</p>;
+    return <p>Carregando3...</p>;
   }
 
   return (

@@ -41,7 +41,7 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
 
   // Mostrar loading enquanto verifica autenticação
   if (status === 'loading') {
-    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+    return <div className="flex items-center justify-center min-h-screen">Carregando2...</div>;
   }
 
   // Se não autenticado e não estiver em uma rota pública, não renderizar nada
