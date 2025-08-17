@@ -19,7 +19,7 @@ interface ShoppingCartProps {
   isMinimized: boolean
   onClose: () => void
   onToggleMinimize: () => void
-  onRemoveItem: (itemId: string | number) => void
+  onRemoveItem: (itemId: string) => void
 }
 
 export default function Carrinho({
