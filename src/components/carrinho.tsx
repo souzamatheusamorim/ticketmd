@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation";
 
 interface CartItem {
-  id: number
+  id: string
   name: string
   price: number
   quantity: number
@@ -19,7 +19,7 @@ interface ShoppingCartProps {
   isMinimized: boolean
   onClose: () => void
   onToggleMinimize: () => void
-  onRemoveItem: (itemId: number) => void
+  onRemoveItem: (itemId: string | number) => void
 }
 
 export default function Carrinho({
