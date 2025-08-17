@@ -55,7 +55,7 @@ export default function TicketSalesPage() {
         const labels: Record<string, string> = {}
 
         data.forEach((ticket: any) => {
-          const day = ticket.day 
+          const day = ticket.day || "outros"
           if (!grouped[day]) grouped[day] = []
 
           grouped[day].push({
