@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { ShoppingCart, Calendar, Clock } from "lucide-react"
+import { ShoppingCart, Clock } from "lucide-react"
 import TicketCard from "@/components/ticket-card"
 import Carrinho from "@/components/carrinho"
 
-// Descrições fixas dos dias
 const dayDescriptions = {
   segunda: { title: "Segunda Cultural", description: "...", highlight: "Show de Rock" },
   terca: { title: "Terça Artística", description: "...", highlight: "Festival de Jazz" },
@@ -38,6 +37,19 @@ export default function TicketSalesPage() {
   const [isCartVisible, setIsCartVisible] = useState(false)
   const [isCartMinimized, setIsCartMinimized] = useState(false)
 
+  // 🔹 Carregar carrinho do localStorage ao iniciar
+  useEffect(() => {
+    const savedCart = localStorage.getItem("shoppingCart")
+    if (savedCart) {
+      setCart(JSON.parse(savedCart))
+    }
+  }, [])
+
+  // 🔹 Sempre que cart mudar, salvar no localStorage
+  useEffect(() => {
+    localStorage.setItem("shoppingCart", JSON.stringify(cart))
+  }, [cart])
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -50,7 +62,6 @@ export default function TicketSalesPage() {
 
         if (!Array.isArray(data)) throw new Error("Formato inválido")
 
-        // Agrupar por dia
         const grouped: Record<string, any[]> = {}
         const labels: Record<string, string> = {}
 
@@ -85,7 +96,6 @@ export default function TicketSalesPage() {
     fetchData()
   }, [])
 
-  // funções add/remove carrinho iguais às suas
   const addToCart = (id: string, name: string, price: number) => {
     const idx = cart.findIndex((i) => i.id === id)
     if (idx >= 0) {
