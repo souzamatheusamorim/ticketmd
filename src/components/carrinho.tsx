@@ -30,6 +30,7 @@ export default function Carrinho() {
 
   // 🔹 Salva carrinho no localStorage sempre que mudar
   useEffect(() => {
+    console.log("entrou localstorage")
     localStorage.setItem("shoppingCart", JSON.stringify(cart))
   }, [cart])
 
