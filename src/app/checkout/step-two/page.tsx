@@ -3,21 +3,21 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
 
 const PRODUCT_PRICE = 299.9
 const SHIPPING_PRICE = 25
 
-// opções de parcelamento (juros já calculados em cima do valor base)
+// Parcelamentos fixos sobre o valor base (sem frete)
+// O cálculo final aplica juros proporcionalmente ao total (produto + frete)
 const INSTALLMENT_OPTIONS = [
-  { installments: 1, totalAmount: 299.9, interestRate: 0 },
-  { installments: 2, totalAmount: 309.9, interestRate: 0 },
-  { installments: 3, totalAmount: 319.9, interestRate: 0 },
-  { installments: 4, totalAmount: 329.9, interestRate: 0 },
-  { installments: 5, totalAmount: 339.9, interestRate: 0 },
-  { installments: 6, totalAmount: 349.9, interestRate: 0 },
+  { installments: 1, interestRate: 0, totalAmount: 299.9 },
+  { installments: 2, interestRate: 0, totalAmount: 299.9 },
+  { installments: 3, interestRate: 0, totalAmount: 299.9 },
+  { installments: 4, interestRate: 0.1, totalAmount: 329.89 },
+  { installments: 5, interestRate: 0.12, totalAmount: 335.89 },
+  { installments: 6, interestRate: 0.15, totalAmount: 344.89 },
 ]
 
 export default function CheckoutPage() {
@@ -27,10 +27,13 @@ export default function CheckoutPage() {
 
   const getFinalTotal = (payment: string, delivery: string, installments: number) => {
     let baseTotal = PRODUCT_PRICE
-    if (delivery === "physical") baseTotal += SHIPPING_PRICE
+
+    if (delivery === "physical") {
+      baseTotal += SHIPPING_PRICE
+    }
 
     if (payment === "pix") {
-      baseTotal = baseTotal * 0.9 // desconto 10%
+      baseTotal = baseTotal * 0.9 // desconto de 10%
     }
 
     if (payment === "card") {
@@ -49,7 +52,9 @@ export default function CheckoutPage() {
     if (!option) return { installmentValue: 0, totalAmount: 0, interestRate: 0 }
 
     let baseTotal = PRODUCT_PRICE
-    if (delivery === "physical") baseTotal += SHIPPING_PRICE
+    if (delivery === "physical") {
+      baseTotal += SHIPPING_PRICE
+    }
 
     const jurosRatio = option.totalAmount / PRODUCT_PRICE
     const finalTotal = baseTotal * jurosRatio
@@ -63,156 +68,104 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Formulário */}
-      <Card className="shadow-lg rounded-2xl">
+    <div className="container mx-auto p-4 max-w-2xl">
+      <h1 className="text-2xl font-bold mb-6">Finalizar Compra</h1>
+
+      {/* Método de Entrega */}
+      <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-xl">Finalizar Compra</CardTitle>
+          <CardTitle>Método de Entrega</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Método de Pagamento */}
-          <div>
-            <Label className="text-base">Método de Pagamento</Label>
-            <RadioGroup
-              value={paymentMethod}
-              onValueChange={setPaymentMethod}
-              className="grid grid-cols-2 gap-4 mt-2"
-            >
-              <Label
-                htmlFor="pix"
-                className={`p-3 border rounded-xl cursor-pointer ${
-                  paymentMethod === "pix" ? "border-primary bg-primary/10" : "border-gray-300"
-                }`}
-              >
-                <RadioGroupItem value="pix" id="pix" className="hidden" />
-                PIX (10% OFF)
-              </Label>
-              <Label
-                htmlFor="card"
-                className={`p-3 border rounded-xl cursor-pointer ${
-                  paymentMethod === "card" ? "border-primary bg-primary/10" : "border-gray-300"
-                }`}
-              >
-                <RadioGroupItem value="card" id="card" className="hidden" />
-                Cartão de Crédito
-              </Label>
-            </RadioGroup>
-          </div>
-
-          {/* Parcelamento */}
-          {paymentMethod === "card" && (
-            <div>
-              <Label className="text-base">Parcelamento</Label>
-              <select
-                className="w-full mt-2 border rounded-lg p-2"
-                value={selectedInstallments}
-                onChange={(e) => setSelectedInstallments(Number(e.target.value))}
-              >
-                {INSTALLMENT_OPTIONS.map((opt) => (
-                  <option key={opt.installments} value={opt.installments}>
-                    {opt.installments}x de R${" "}
-                    {getInstallmentInfo(opt.installments, deliveryMethod).installmentValue
-                      .toFixed(2)
-                      .replace(".", ",")}
-                  </option>
-                ))}
-              </select>
+        <CardContent>
+          <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="digital" id="digital" />
+              <Label htmlFor="digital">Digital (entrega por e-mail)</Label>
             </div>
-          )}
-
-          {/* Método de Entrega */}
-          <div>
-            <Label className="text-base">Método de Entrega</Label>
-            <RadioGroup
-              value={deliveryMethod}
-              onValueChange={setDeliveryMethod}
-              className="grid grid-cols-2 gap-4 mt-2"
-            >
-              <Label
-                htmlFor="digital"
-                className={`p-3 border rounded-xl cursor-pointer ${
-                  deliveryMethod === "digital" ? "border-primary bg-primary/10" : "border-gray-300"
-                }`}
-              >
-                <RadioGroupItem value="digital" id="digital" className="hidden" />
-                Entrega Digital
-              </Label>
-              <Label
-                htmlFor="physical"
-                className={`p-3 border rounded-xl cursor-pointer ${
-                  deliveryMethod === "physical"
-                    ? "border-primary bg-primary/10"
-                    : "border-gray-300"
-                }`}
-              >
-                <RadioGroupItem value="physical" id="physical" className="hidden" />
-                Receber em Casa (+R$ {SHIPPING_PRICE})
-              </Label>
-            </RadioGroup>
-          </div>
-
-          {/* Endereço */}
-          {deliveryMethod === "physical" && (
-            <div className="space-y-2">
-              <Label htmlFor="address">Endereço</Label>
-              <Input id="address" placeholder="Rua, número, bairro" />
-              <Input id="city" placeholder="Cidade" />
-              <Input id="zip" placeholder="CEP" />
+            <div className="flex items-center space-x-2 mt-2">
+              <RadioGroupItem value="physical" id="physical" />
+              <Label htmlFor="physical">Físico (+ R$ {SHIPPING_PRICE.toFixed(2).replace(".", ",")} frete)</Label>
             </div>
-          )}
+          </RadioGroup>
         </CardContent>
       </Card>
 
-      {/* Resumo do Pedido */}
-      <Card className="shadow-lg rounded-2xl">
+      {/* Método de Pagamento */}
+      <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-xl">Resumo do Pedido</CardTitle>
+          <CardTitle>Método de Pagamento</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex justify-between">
-            <span>Produto</span>
+        <CardContent>
+          <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="pix" id="pix" />
+              <Label htmlFor="pix">PIX (10% de desconto)</Label>
+            </div>
+            <div className="flex items-center space-x-2 mt-2">
+              <RadioGroupItem value="card" id="card" />
+              <Label htmlFor="card">Cartão de Crédito</Label>
+            </div>
+          </RadioGroup>
+        </CardContent>
+      </Card>
+
+      {/* Parcelamento */}
+      {paymentMethod === "card" && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Parcelamento</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RadioGroup
+              value={String(selectedInstallments)}
+              onValueChange={(val) => setSelectedInstallments(Number(val))}
+            >
+              {INSTALLMENT_OPTIONS.map((option) => {
+                const { installmentValue } = getInstallmentInfo(option.installments, deliveryMethod)
+                return (
+                  <div key={option.installments} className="flex items-center space-x-2 mt-2">
+                    <RadioGroupItem value={String(option.installments)} id={`installment-${option.installments}`} />
+                    <Label htmlFor={`installment-${option.installments}`}>
+                      {option.installments}x de R$ {installmentValue.toFixed(2).replace(".", ",")}
+                      {option.interestRate > 0 && ` (${(option.interestRate * 100).toFixed(0)}% juros)`}
+                    </Label>
+                  </div>
+                )
+              })}
+            </RadioGroup>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Resumo */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Resumo do Pedido</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between mb-2">
+            <span>Ingresso:</span>
             <span>R$ {PRODUCT_PRICE.toFixed(2).replace(".", ",")}</span>
           </div>
-
           {deliveryMethod === "physical" && (
-            <div className="flex justify-between">
-              <span>Frete</span>
+            <div className="flex justify-between mb-2">
+              <span>Frete:</span>
               <span>R$ {SHIPPING_PRICE.toFixed(2).replace(".", ",")}</span>
             </div>
           )}
-
-          {paymentMethod === "pix" && (
-            <div className="flex justify-between text-green-600 font-medium">
-              <span>Desconto PIX</span>
-              <span>-10%</span>
-            </div>
-          )}
-
-          {paymentMethod === "card" && (
-            <div className="flex justify-between">
-              <span>Parcelamento</span>
-              <span>
-                {selectedInstallments}x de R${" "}
-                {getInstallmentInfo(selectedInstallments, deliveryMethod).installmentValue
-                  .toFixed(2)
-                  .replace(".", ",")}
-              </span>
-            </div>
-          )}
-
-          <div className="border-t pt-4 flex justify-between text-lg font-bold">
-            <span>Total</span>
-            <span className="text-primary">
+          <div className="flex justify-between font-bold text-lg">
+            <span>Total:</span>
+            <span>
               R${" "}
               {getFinalTotal(paymentMethod, deliveryMethod, selectedInstallments)
                 .toFixed(2)
                 .replace(".", ",")}
             </span>
           </div>
-
-          <Button className="w-full mt-4">Finalizar Compra</Button>
         </CardContent>
       </Card>
+
+      <Button className="w-full">Finalizar Compra</Button>
     </div>
   )
 }
