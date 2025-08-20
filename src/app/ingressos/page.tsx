@@ -55,7 +55,7 @@ export default function TicketSalesPage() {
       try {
         setIsLoading(true)
         const res = await fetch(
-          "https://mundo-app-api.vercel.app/api/v1/events/festival-de-musica-2025/tickets?companyId=a0000000-0000-0000-0000-000000000001&isActive=true"
+          "https://mundo-app-api.vercel.app/api/v1/events/festival-de-musica-2025/tickets?companyId=0ddc157c-5785-401f-99ac-6c71640a8743&isActive=true"
         )
         const data = await res.json()
         console.log("📦 API:", data)
