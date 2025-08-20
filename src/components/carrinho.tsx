@@ -1,37 +1,24 @@
 "use client"
-import { Button } from "@/components/ui/button"
+
 import { ShoppingCart, X, ChevronUp, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
-
-export interface CartItem {
-  id: string
-  name: string
-  price: number
-  quantity: number
-  day: string
-  image?: string
-}
-
-export type CarrinhoProps = {
-  cart: CartItem[]
-  isVisible: boolean
-  isMinimized: boolean
-  onClose: () => void
-  onToggleMinimize: () => void
-  onRemoveItem: (id: string) => void
-}
+import { useCart } from "@/app/context/cartContext"
+import { Button } from "@/components/ui/button"
 
 export default function Carrinho({
-  cart,
   isVisible,
   isMinimized,
   onClose,
   onToggleMinimize,
-  onRemoveItem,
-}: CarrinhoProps) {
+}: {
+  isVisible: boolean
+  isMinimized: boolean
+  onClose: () => void
+  onToggleMinimize: () => void
+}) {
   const router = useRouter()
-  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
+  const { cart, cartTotal, removeItemCompletely } = useCart()
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0)
 
   return (
@@ -90,7 +77,7 @@ export default function Carrinho({
                   <CartItemComponent
                     key={item.id + item.day}
                     item={item}
-                    onRemove={() => onRemoveItem(item.id)}
+                    onRemove={() => removeItemCompletely(item.id)}
                   />
                 ))}
               </div>
@@ -135,7 +122,10 @@ export default function Carrinho({
   )
 }
 
-function CartItemComponent({ item, onRemove }: { item: CartItem; onRemove: () => void }) {
+function CartItemComponent({ item, onRemove }: { 
+  item: { id: string; name: string; price: number; quantity: number; day: string }; 
+  onRemove: () => void 
+}) {
   return (
     <div className="flex items-center justify-between py-2 border-b border-pink-100">
       <div className="flex-1">

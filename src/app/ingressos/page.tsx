@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ShoppingCart, Clock } from "lucide-react"
 import TicketCard from "@/components/ticket-card"
 import Carrinho from "@/components/carrinho"
+import { useCart } from "../context/cartContext"
 
 const dayDescriptions = {
   segunda: { title: "Segunda Cultural", description: "...", highlight: "Show de Rock" },
@@ -17,14 +18,6 @@ const dayDescriptions = {
   domingo: { title: "Domingo em Família", description: "...", highlight: "Orquestra Municipal" },
 }
 
-export type CartItem = {
-  id: string
-  name: string
-  price: number
-  quantity: number
-  day: string
-}
-
 export default function TicketSalesPage() {
   const [eventsByDay, setEventsByDay] = useState<Record<string, any[]>>({})
   const [dayLabels, setDayLabels] = useState<Record<string, string>>({})
@@ -33,22 +26,11 @@ export default function TicketSalesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const [cart, setCart] = useState<CartItem[]>([])
   const [isCartVisible, setIsCartVisible] = useState(false)
   const [isCartMinimized, setIsCartMinimized] = useState(false)
 
-  // 🔹 Carregar carrinho do localStorage ao iniciar
-  useEffect(() => {
-    const savedCart = localStorage.getItem("shoppingCart")
-    if (savedCart) {
-      setCart(JSON.parse(savedCart))
-    }
-  }, [])
-
-  // 🔹 Sempre que cart mudar, salvar no localStorage
-  useEffect(() => {
-    localStorage.setItem("shoppingCart", JSON.stringify(cart))
-  }, [cart])
+  // Usar o contexto do carrinho
+  const { addToCart, removeFromCart, getItemQuantity, cartItemCount } = useCart()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,36 +78,11 @@ export default function TicketSalesPage() {
     fetchData()
   }, [])
 
-  const addToCart = (id: string, name: string, price: number) => {
-    const idx = cart.findIndex((i) => i.id === id)
-    if (idx >= 0) {
-      const c = [...cart]
-      c[idx].quantity += 1
-      setCart(c)
-    } else {
-      setCart([...cart, { id, name, price, quantity: 1, day: dayLabels[selectedDay] }])
-    }
+  const handleAddToCart = (id: string, name: string, price: number) => {
+    addToCart(id, name, price, dayLabels[selectedDay])
     setIsCartVisible(true)
     setIsCartMinimized(false)
   }
-
-  const removeFromCart = (id: string) => {
-    const idx = cart.findIndex((i) => i.id === id)
-    if (idx >= 0) {
-      const c = [...cart]
-      if (c[idx].quantity > 1) c[idx].quantity -= 1
-      else c.splice(idx, 1)
-      setCart(c)
-    }
-  }
-
-  const removeItemCompletely = (id: string) =>
-    setCart(cart.filter((i) => i.id !== id))
-
-  const getItemQuantity = (id: string) =>
-    cart.find((i) => i.id === id)?.quantity || 0
-
-  const cartItemCount = cart.reduce((t, i) => t + i.quantity, 0)
 
   return (
     <div className="min-h-screen pb-24">
@@ -183,7 +140,7 @@ export default function TicketSalesPage() {
                       key={event.id}
                       event={event}
                       quantity={getItemQuantity(event.id)}
-                      onIncrement={() => addToCart(event.id, event.name, event.price)}
+                      onIncrement={() => handleAddToCart(event.id, event.name, event.price)}
                       onDecrement={() => removeFromCart(event.id)}
                     />
                   ))}
@@ -195,12 +152,10 @@ export default function TicketSalesPage() {
       </main>
 
       <Carrinho
-        cart={cart}
         isVisible={isCartVisible}
         isMinimized={isCartMinimized}
         onClose={() => setIsCartVisible(false)}
         onToggleMinimize={() => setIsCartMinimized(!isCartMinimized)}
-        onRemoveItem={removeItemCompletely}
       />
     </div>
   )
