@@ -2,10 +2,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import { auth } from '@/lib/auth'
+import { AUTH_CONFIG, isPublicRoute } from '@/lib/auth-config'
 
 export async function middleware(request: NextRequest) {
-  // 1. Obter o token JWT (contém dados básicos)
+  const pathname = request.nextUrl.pathname
 
+  // Verificar se é uma rota pública
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next()
+  }
 
   // 2. Obter a sessão completa (com access_token e email)
   const session = await auth()
@@ -17,8 +22,8 @@ export async function middleware(request: NextRequest) {
   console.log('Middleware - Access Token:', accessToken)
   console.log('Middleware - User Email:', userEmail)
 
-  // 4. Verificar autenticação
-  if ( !session) {
+  // 4. Verificar autenticação - FORÇAR AUTENTICAÇÃO
+  if (!session || !accessToken) {
     // Para APIs
     if (request.nextUrl.pathname.startsWith('/api')) {
       return new NextResponse(
@@ -27,9 +32,8 @@ export async function middleware(request: NextRequest) {
       )
     }
     
-    // Para páginas
-   
-    return NextResponse.redirect(new URL('/login', request.url))
+    // Para páginas - SEMPRE redirecionar para login se não autenticado
+    return NextResponse.redirect(new URL(AUTH_CONFIG.LOGOUT_REDIRECT_URL, request.url))
   }
 
   // 5. Exemplo: Adicionar headers com os dados da sessão
@@ -46,10 +50,14 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*'/((?!login|register|_next/static|_next/image|favicon.ico).*)'*/
-    '/dashboard',
-  '/profile',
-  '/settings',
-
+    // Proteger apenas rotas que precisam de autenticação
+    '/dashboard/:path*',
+    '/profile/:path*', 
+    '/settings/:path*',
+    '/concursos/:path*',
+    '/users/:path*',
+    '/checkout/:path*',
+    '/cadastro-cosplay/:path*',
+    '/api/((?!auth).*)' // Proteger APIs exceto auth
   ]
 }

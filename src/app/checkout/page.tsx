@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowRight, Package, CreditCard, QrCode, Smartphone } from "lucide-react"
-
+import { useCart } from "../context/cartContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 export default function CheckoutPage() {
   const router = useRouter()
+  const { cartTotal } = useCart()
   const [deliveryMethod, setDeliveryMethod] = useState("physical")
   const [paymentMethod, setPaymentMethod] = useState("card")
 
@@ -18,7 +19,12 @@ export default function CheckoutPage() {
     // Store selections in localStorage to access them in the next page
     localStorage.setItem("deliveryMethod", deliveryMethod)
     localStorage.setItem("paymentMethod", paymentMethod)
-    router.push("/checkout/step-two")
+
+    if (paymentMethod === "pix") {
+      router.push("/checkout/step-two")
+    } else if (paymentMethod === "card") {
+      router.push("/checkout/step-two")
+    }
   }
 
   return (
@@ -113,7 +119,7 @@ export default function CheckoutPage() {
                 >
                   <CreditCard className="mb-2 md:mb-3 h-5 w-5 md:h-6 md:w-6 text-primary" />
                   <p className="font-medium text-sm md:text-base">Cartão de Crédito</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">Pague em até 12x</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Pague em até 5x</p>
                 </Label>
               </div>
               <div>
@@ -130,7 +136,7 @@ export default function CheckoutPage() {
             </RadioGroup>
           </CardContent>
           <CardFooter>
-            <Button onClick={handleContinue} className="w-full">
+            <Button onClick={handleContinue} className="w-full bg-[#41056F]">
               Continuar
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -140,4 +146,3 @@ export default function CheckoutPage() {
     </div>
   )
 }
-

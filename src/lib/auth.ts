@@ -19,29 +19,31 @@ export const { auth, handlers } = NextAuth({
       },
       authorize: async (credentials) => {
         try {
-          const res = await fetch("https://dev.mundodream.com.br/login", {
+          const res = await fetch("https://mundo-app-api.vercel.app/api/v1/sessions", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              username: credentials?.email,
+              email: credentials?.email,
               password: credentials?.password,
             }),
           });
 
-          const user = await res.json();
+          if (!res.ok) return null;
+          const data = await res.json();
+          console.log("Resposta da API:", data);
 
-          if (user && user.access_token) {
-            // Retorna um objeto compatível com o tipo User
+          if (data && data.token) {
             return {
-              id: user.id || "default-id", // Adicione um ID se necessário
-              email: credentials?.email,
-              access_token: user.access_token, // Inclui o access_token
-            };
-          } else {
-            return null;
+              id: data.user?.id || data.id || "default-id",
+              email: data.user?.email || credentials?.email || "",
+              token: data.token, // salva o token retornado pela API
+              name: data.user?.username || null,
+            } as any;
           }
+
+          return null;
         } catch (error) {
           console.error("Erro durante a autenticação:", error);
           return null;
@@ -52,23 +54,22 @@ export const { auth, handlers } = NextAuth({
 
   callbacks: {
     async jwt({ token, user }) {
-      // Se o usuário estiver disponível (durante o login), mescle com o token
       if (user) {
-        token.id = user.id; // Adiciona o ID ao token
-        token.email = user.email; // Adiciona o email ao token
-        token.access_token = user.access_token; // Adiciona o access_token ao token
-        console.log( token.access_token)
+        token.id = (user as any).id;
+        token.email = (user as any).email;
+        token.token = (user as any).token; // token da API
+        token.name = (user as any).name;
       }
       return token;
     },
-  
+
     async session({ session, token }) {
-      // Atribua as propriedades do token ao session.user
       session.user = {
         ...session.user,
-        id: token.id as string, // Adiciona o ID ao session.user
-        email: token.email as string, // Adiciona o email ao session.user
-        access_token: token.access_token as string, // Adiciona o access_token ao session.user
+        id: token.id as string,
+        email: token.email as string,
+        token: token.token as string, // disponível no cliente
+        name: token.name as string,
       };
       return session;
     },
