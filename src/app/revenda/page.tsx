@@ -129,16 +129,19 @@ const clienteAPI = {
       }
     })
 
-    const response = await fetch(`/api/clientes?${searchParams}`)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clientes?${searchParams}`)
     if (!response.ok) throw new Error("Erro ao buscar clientes")
     return response.json()
   },
 
   // Criar novo cliente
   createCliente: async (cliente: Omit<Cliente, "id" | "dataContato" | "historico">): Promise<Cliente> => {
-    const response = await fetch("/api/clientes", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clientes`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        // "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify(cliente),
     })
     if (!response.ok) throw new Error("Erro ao criar cliente")
@@ -147,9 +150,12 @@ const clienteAPI = {
 
   // Atualizar cliente
   updateCliente: async (id: number, cliente: Partial<Cliente>): Promise<Cliente> => {
-    const response = await fetch(`/api/clientes/${id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clientes/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        // "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify(cliente),
     })
     if (!response.ok) throw new Error("Erro ao atualizar cliente")
@@ -158,17 +164,23 @@ const clienteAPI = {
 
   // Deletar cliente
   deleteCliente: async (id: number): Promise<void> => {
-    const response = await fetch(`/api/clientes/${id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clientes/${id}`, {
       method: "DELETE",
+      headers: {
+        // "Authorization": `Bearer ${token}`,
+      },
     })
     if (!response.ok) throw new Error("Erro ao deletar cliente")
   },
 
   // Deletar múltiplos clientes
   deleteMultipleClientes: async (ids: number[]): Promise<void> => {
-    const response = await fetch("/api/clientes/bulk-delete", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clientes/bulk-delete`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        // "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify({ ids }),
     })
     if (!response.ok) throw new Error("Erro ao deletar clientes")
@@ -176,9 +188,12 @@ const clienteAPI = {
 
   // Adicionar contato ao histórico
   addContato: async (clienteId: number, contato: Omit<HistoricoContato, "id" | "data">): Promise<HistoricoContato> => {
-    const response = await fetch(`/api/clientes/${clienteId}/contatos`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clientes/${clienteId}/contatos`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        // "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify(contato),
     })
     if (!response.ok) throw new Error("Erro ao adicionar contato")
@@ -188,7 +203,11 @@ const clienteAPI = {
   // Exportar clientes
   exportClientes: async (ids?: number[]): Promise<Blob> => {
     const params = ids ? `?ids=${ids.join(",")}` : ""
-    const response = await fetch(`/api/clientes/export${params}`)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clientes/export${params}`, {
+      headers: {
+        // "Authorization": `Bearer ${token}`,
+      },
+    })
     if (!response.ok) throw new Error("Erro ao exportar clientes")
     return response.blob()
   },
@@ -254,7 +273,7 @@ export default function ClientesPage() {
     isLoading,
     mutate,
   } = useSWR(
-    `/api/clientes?${new URLSearchParams(Object.entries(apiParams).filter(([_, v]) => v !== undefined) as [string, string][])}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/clientes?${new URLSearchParams(Object.entries(apiParams).filter(([_, v]) => v !== undefined) as [string, string][])}`,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -266,7 +285,7 @@ export default function ClientesPage() {
   const totalClientes = apiResponse?.total || 0
   const totalPaginas = Math.ceil(totalClientes / itensPorPagina)
 
-  const { data: filtrosData } = useSWR("/api/clientes/filtros", fetcher)
+  const { data: filtrosData } = useSWR(`${process.env.NEXT_PUBLIC_API_URL}/clientes/filtros`, fetcher)
   const origensUnicas = filtrosData?.origens || []
   const responsaveisUnicos = filtrosData?.responsaveis || []
 
@@ -400,7 +419,8 @@ export default function ClientesPage() {
     if (clientesSelecionados.size === clientes.length && clientes.length > 0) {
       setClientesSelecionados(new Set())
     } else {
-      setClientesSelecionados(new Set(clientes.map((c) => c.id)))
+      setClientesSelecionados(new Set(clientes.map((c: Cliente) => c.id)))
+
     }
   }, [clientes, clientesSelecionados.size])
 
